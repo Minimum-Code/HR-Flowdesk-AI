@@ -34,8 +34,9 @@ export async function GET(req: NextRequest) {
     if (!sub) return NextResponse.json({ plan: 'free', status: null })
 
     const plan = (sub.metadata?.plan as string) ?? 'free'
-    const renewsAt = sub.current_period_end
-      ? new Date(sub.current_period_end * 1000).toLocaleDateString('en-GB', {
+    const periodEnd = sub.items.data[0]?.current_period_end
+    const renewsAt = periodEnd
+      ? new Date(periodEnd * 1000).toLocaleDateString('en-GB', {
           day: 'numeric', month: 'short', year: 'numeric',
         })
       : null
