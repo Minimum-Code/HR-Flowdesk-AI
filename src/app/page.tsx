@@ -1,4 +1,5 @@
-// Root — AuthProvider in layout.tsx handles redirect based on role
+import { redirect } from 'next/navigation'
+
 export default function Home() {
-  return null
+  redirect('/login')
 }
