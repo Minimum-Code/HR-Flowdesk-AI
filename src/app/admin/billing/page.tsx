@@ -70,7 +70,7 @@ function BillingContent() {
     } catch {
       toast.error('Something went wrong')
     } finally {
-      setSubscribing(false)
+      setSubscribing(null)
     }
   }
 
