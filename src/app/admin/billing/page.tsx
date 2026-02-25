@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, Fragment } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { getToken } from '@/lib/api'
@@ -244,14 +244,14 @@ function BillingContent() {
             { label: 'Employees', key: 'maxEmployees' as const },
             { label: 'Categories', key: 'maxCategories' as const },
           ].map(({ label, key }) => (
-            <>
-              <p key={label} className="text-[#647a6b]">{label}</p>
+            <Fragment key={label}>
+              <p className="text-[#647a6b]">{label}</p>
               {(['starter', 'pro', 'enterprise'] as PlanKey[]).map((p) => (
                 <p key={p} className="font-medium text-[#07472e]">
                   {PLANS[p][key] === null ? 'Unlimited' : PLANS[p][key]}
                 </p>
               ))}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>

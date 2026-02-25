@@ -63,8 +63,7 @@ export default function Sidebar({ navItems, role }: SidebarProps) {
                   : 'text-white/60 hover:bg-white/10 hover:text-white'
               )}
             >
-              {item.icon}
-              {item.label}
+              <>{item.icon}{item.label}</>
             </Link>
           )
         })}
