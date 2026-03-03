@@ -23,6 +23,15 @@ function CheckIcon() {
   )
 }
 
+function isSafeStripeUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return parsed.protocol === 'https:' && parsed.hostname.endsWith('.stripe.com')
+  } catch {
+    return false
+  }
+}
+
 function BillingContent() {
   const searchParams = useSearchParams()
   const [sub, setSub] = useState<SubscriptionInfo | null>(null)
@@ -65,7 +74,7 @@ function BillingContent() {
         body: JSON.stringify({ plan }),
       })
       const data = await res.json()
-      if (data.url) window.location.href = data.url
+      if (data.url && isSafeStripeUrl(data.url)) window.location.href = data.url
       else toast.error('Failed to start checkout')
     } catch {
       toast.error('Something went wrong')
@@ -82,7 +91,7 @@ function BillingContent() {
         headers: { Authorization: `Bearer ${getToken()}` },
       })
       const data = await res.json()
-      if (data.url) window.location.href = data.url
+      if (data.url && isSafeStripeUrl(data.url)) window.location.href = data.url
       else toast.error('Could not open billing portal')
     } catch {
       toast.error('Something went wrong')
