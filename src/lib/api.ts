@@ -23,6 +23,10 @@ function createClient(baseURL: string): AxiosInstance {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    const dataSource = process.env.NEXT_PUBLIC_XANO_DATA_SOURCE
+    if (dataSource) {
+      config.headers['X-Data-Source'] = dataSource
+    }
     return config
   })
 
