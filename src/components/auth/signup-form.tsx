@@ -30,8 +30,18 @@ export default function SignupForm() {
   const { signup, isLoading } = useAuthStore()
   const router = useRouter()
 
+  function validatePassword(p: string): string | null {
+    if (p.length < 8) return 'Password must be at least 8 characters'
+    if (!/[A-Z]/.test(p)) return 'Password must contain an uppercase letter'
+    if (!/[0-9]/.test(p)) return 'Password must contain a number'
+    if (!/[^a-zA-Z0-9]/.test(p)) return 'Password must contain a special character'
+    return null
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    const pwError = validatePassword(password)
+    if (pwError) return toast.error(pwError)
     if (password !== confirmPassword) return toast.error('Passwords do not match')
     if (!acceptedTerms) return toast.error('Please accept the Terms & Conditions')
     try {

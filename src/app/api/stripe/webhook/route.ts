@@ -3,6 +3,32 @@ import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
+// In-memory idempotency store (prevents duplicate processing on Stripe retries)
+// Stores event IDs for 24h — replace with Redis for multi-instance deployments
+const processedEvents = new Map<string, number>()
+const IDEMPOTENCY_TTL = 24 * 60 * 60 * 1000
+
+function isAlreadyProcessed(eventId: string): boolean {
+  const processedAt = processedEvents.get(eventId)
+  if (!processedAt) return false
+  if (Date.now() - processedAt > IDEMPOTENCY_TTL) {
+    processedEvents.delete(eventId)
+    return false
+  }
+  return true
+}
+
+function markProcessed(eventId: string): void {
+  processedEvents.set(eventId, Date.now())
+  // Clean up old entries
+  if (processedEvents.size > 1000) {
+    const cutoff = Date.now() - IDEMPOTENCY_TTL
+    for (const [id, ts] of processedEvents.entries()) {
+      if (ts < cutoff) processedEvents.delete(id)
+    }
+  }
+}
+
 // Get a super admin JWT to call Xano
 async function getSuperAdminToken(): Promise<string | null> {
   try {
@@ -82,6 +108,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
+  if (isAlreadyProcessed(event.id)) {
+    return NextResponse.json({ received: true })
+  }
+
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -121,8 +151,9 @@ export async function POST(req: NextRequest) {
         break
       }
     }
+    markProcessed(event.id)
   } catch (err) {
-    console.error('Webhook handler error:', err)
+    console.error('Webhook handler error:', { eventType: event.type, eventId: event.id, err })
     // Return 200 to prevent Stripe from retrying for handler errors
   }
 

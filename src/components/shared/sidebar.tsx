@@ -34,8 +34,8 @@ export default function Sidebar({ navItems, role }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-6">
         <img
-          src="https://www.figma.com/api/mcp/asset/0eeee459-7098-406d-896a-95ac49d98452"
-          alt=""
+          src="/logo.svg"
+          alt="HR Flowdesk"
           className="h-8 w-auto"
         />
         <span className="text-[15px] font-semibold text-white tracking-tight">HR Flowdesk</span>

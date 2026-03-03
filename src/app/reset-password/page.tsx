@@ -44,9 +44,19 @@ function ResetPasswordContent() {
     }
   }
 
+  function validatePassword(p: string): string | null {
+    if (p.length < 8) return 'Password must be at least 8 characters'
+    if (!/[A-Z]/.test(p)) return 'Password must contain an uppercase letter'
+    if (!/[0-9]/.test(p)) return 'Password must contain a number'
+    if (!/[^a-zA-Z0-9]/.test(p)) return 'Password must contain a special character'
+    return null
+  }
+
   async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault()
     if (!token) return
+    const pwError = validatePassword(newPassword)
+    if (pwError) return toast.error(pwError)
     if (newPassword !== confirmPassword) return toast.error('Passwords do not match')
     setLoading(true)
     try {
